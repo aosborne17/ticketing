@@ -8,7 +8,7 @@ it("Responds with details about the current user", async () => {
     .get("/api/users/currentuser")
     .set("Cookie", cookie) // the .set() allows us to add headers to our requests
     .send()
-    .expect(400);
+    .expect(200);
 
   // making sure the req email in our currentUser is the same as our signin email
   expect(response.body.currentUser.email).toEqual("test@test.com");
