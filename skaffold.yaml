@@ -1,0 +1,34 @@
+apiVersion: skaffold/v2alpha3
+kind: Config
+## deply section contains all the config files we want to apply into our cluster
+deploy:
+  kubectl:
+    manifests:
+      # so we are telling skaffold to apply every file in our k8s folder
+      - ./infra/k8s/*
+build:
+  local:
+    push: false
+  artifacts:
+    - image: aosborne17/auth
+      #  contains stands for the folder that will contan the code for the above image
+      context: auth
+      docker:
+        dockerfile: Dockerfile
+      # tell skaffold how to handle any files that change in the auth folder
+      sync:
+        manual:
+          # we want to listen to when any typescript file changes
+          - src: 'src/**/*.ts'
+            # where to sync the changes, the . means we sync it in the same place
+            dest: .
+    - image: aosborne17/client
+      context: client
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          # we want to listen to when any javascript file changes
+          - src: '**/*.js'
+            # where to sync the changes, the . means we sync it in the same place
+            dest: .

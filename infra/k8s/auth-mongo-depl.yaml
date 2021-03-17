@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-mongo-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # telling our deployment the name of the pod we are referring to so it nows how to find it
+      app: auth-mongo
+  template:
+    metadata:
+      labels:
+        # label applied to the pod
+        app: auth-mongo
+    spec:
+      # defining all the containers that will run in our pod
+      containers:
+        - name: auth-mongo
+          # we are using the official mongo image from docker hub
+          image: mongo
+---
+# Creating the cluster ip service for our mongo auth database
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-mongo-srv
+spec:
+  # tellling our cluster ip service to direct incoming traffic to the auth-mongo pod
+  # so this cluster ip governs access to the auth mongo pod
+  selector:
+    app: auth-mongo
+  type: ClusterIP
+  ports:
+    - name: db
+      protocol: TCP
+      # the default port that mongo runs on
+      targetPort: 27017
+      port: 27017

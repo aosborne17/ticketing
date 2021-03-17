@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      # telling our deployment the name of the pod we are referring to
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      # defining all the containers that will run in our pod
+      containers:
+        - name: auth
+          # we are using the image we created from our docker file and pushed to docker hub
+          image: aosborne17/auth:latest
+          # list out all the env variables we want to have access to inside this container
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                # the name we gave to our secret key in the command
+                  name: jwt-secret
+                  # we pass in the key of the seret and it will get its value
+                  key: JWT_KEY
+---
+# adding the three dashes allows us to create multiple objects in one yaml file
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-srv
+spec:
+  # tellling our cluster ip service to direct incoming traffic to the auth pod
+  selector:
+    app: auth
+  type: ClusterIP
+  ports:
+    - name: auth
+      protocol: TCP
+      targetPort: 3000
+      port: 3000

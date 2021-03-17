@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # this is what allows us to use the wildcard below
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+    - host: ticketing.dev
+      http:
+        paths:
+          - path: /api/users/?(.*)
+            backend:
+              # any request which contains api/users will be routed to our auth cluster ip service
+              # so will go to our auth container
+              serviceName: auth-srv
+              servicePort: 3000
+          # list out our client service at the bottom to ensure doesntt match this for every single request
+          - path: /?(.*)
+            backend:
+              serviceName: client-srv
+              servicePort: 3000
